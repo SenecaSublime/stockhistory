@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+.venv/
+venv/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local-only working artifacts (regenerable from src/ingest.py)
+data/raw/
+data/processed/
+
+# PDF report output (regenerable from src/report.py)
+reports/
