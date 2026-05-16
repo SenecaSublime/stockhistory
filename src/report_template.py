@@ -49,6 +49,12 @@ PAGE_FOOTER = (
     "Library, Tuck) and FRED CPIAUCNS  ·  Research only — not investment advice."
 )
 
+# Color used to flag negative metric values and below-break-even terminal
+# values in charts and tables. Kept in one place so a future palette change
+# is a one-line edit. Matches the CSS --negative-color on the website.
+NEG_COLOR = "#cc3333"
+NEG_FILL_ALPHA = 0.18
+
 
 def full_history_cagr(returns: pd.Series) -> float:
     n_months = len(returns)
@@ -194,17 +200,25 @@ def add_rolling_metric_chart(
 ) -> None:
     metric = meta.metric_name
     fig = plt.figure(figsize=PAGE_SIZE)
-    fig.text(0.5, 0.93, f"{horizon}-year rolling {metric} by window start date",
+    fig.text(0.5, 0.93,
+             f"{horizon}-year rolling {metric} — Nominal & Real",
              ha="center", fontsize=14, weight="bold")
     fig.text(0.5, 0.905,
              f"Each point is the annualized return of a {horizon}-year window "
-             "beginning on that month.",
+             "beginning on that month. Red shading marks the negative region.",
              ha="center", fontsize=9, color="#555555")
 
     ax = fig.add_axes([0.12, 0.55, 0.78, 0.32])
-    ax.plot(windows.index, windows["nominal_metric"], label="Nominal", linewidth=1)
-    ax.plot(windows.index, windows["real_metric"], label="Real",
-            linewidth=1, color="C1")
+    x = windows.index
+    y_nom = windows["nominal_metric"]
+    y_real = windows["real_metric"]
+    ax.plot(x, y_nom, label="Nominal", linewidth=1)
+    ax.plot(x, y_real, label="Real", linewidth=1, color="C1")
+    # Red fill between each series and zero, only where the series is below zero.
+    ax.fill_between(x, y_nom, 0, where=(y_nom < 0), color=NEG_COLOR,
+                    alpha=NEG_FILL_ALPHA, interpolate=True, linewidth=0)
+    ax.fill_between(x, y_real, 0, where=(y_real < 0), color=NEG_COLOR,
+                    alpha=NEG_FILL_ALPHA, interpolate=True, linewidth=0)
     ax.axhline(0, color="black", linewidth=0.5)
     ax.yaxis.set_major_formatter(mticker.PercentFormatter(xmax=1))
     ax.set_xlabel("Window start")
@@ -262,26 +276,37 @@ def add_distribution_page(
 ) -> None:
     metric = meta.metric_name
     fig = plt.figure(figsize=PAGE_SIZE)
-    fig.text(0.5, 0.93, f"Distribution of {horizon}-year rolling {metric}s",
+    fig.text(0.5, 0.93,
+             f"Distribution of {horizon}-year rolling {metric} — Nominal & Real",
              ha="center", fontsize=14, weight="bold")
     fig.text(0.5, 0.905,
-             f"Histogram of every {horizon}-year window in the sample.",
+             f"Histogram of every {horizon}-year window in the sample. Negative "
+             "bins are shown in red.",
              ha="center", fontsize=9, color="#555555")
 
+    def _draw_hist(ax, values, title, default_color):
+        """Histogram with negative bins recolored red.
+
+        ax.hist returns (counts, bin_edges, patches); we iterate the patches and
+        recolor the ones whose left edge is < 0.
+        """
+        _, bin_edges, patches = ax.hist(
+            values, bins=40, edgecolor="white", color=default_color,
+        )
+        for patch, left_edge in zip(patches, bin_edges[:-1]):
+            if left_edge < 0:
+                patch.set_facecolor(NEG_COLOR)
+        ax.set_title(f"{title} {metric}")
+        ax.xaxis.set_major_formatter(mticker.PercentFormatter(xmax=1))
+        ax.set_xlabel(f"{title} annualized return ({metric})")
+        ax.axvline(0, color="black", linewidth=0.7, linestyle="--")
+
     ax1 = fig.add_axes([0.1, 0.5, 0.38, 0.34])
-    ax1.hist(windows["nominal_metric"], bins=40, edgecolor="white")
-    ax1.set_title("Nominal")
-    ax1.xaxis.set_major_formatter(mticker.PercentFormatter(xmax=1))
-    ax1.set_xlabel(f"Annualized return ({metric})")
+    _draw_hist(ax1, windows["nominal_metric"], "Nominal", "C0")
     ax1.set_ylabel("Window count")
-    ax1.axvline(0, color="black", linewidth=0.7, linestyle="--")
 
     ax2 = fig.add_axes([0.55, 0.5, 0.38, 0.34])
-    ax2.hist(windows["real_metric"], bins=40, edgecolor="white", color="C1")
-    ax2.set_title("Real")
-    ax2.xaxis.set_major_formatter(mticker.PercentFormatter(xmax=1))
-    ax2.set_xlabel(f"Annualized return ({metric})")
-    ax2.axvline(0, color="black", linewidth=0.7, linestyle="--")
+    _draw_hist(ax2, windows["real_metric"], "Real", "C1")
 
     nom_neg = (windows["nominal_metric"] <= 0)
     real_neg = (windows["real_metric"] <= 0)
@@ -332,27 +357,40 @@ def add_best_worst_tables(
              "window-start month.",
              ha="center", fontsize=9, color="#555555")
 
+    total = meta.total_invested
+
     def _make_rows(df: pd.DataFrame, metric_col: str, term_col: str,
-                   ascending: bool) -> list[list[str]]:
+                   ascending: bool) -> list[tuple[list[str], list[bool]]]:
+        """Returns list of (cells, red_mask) where red_mask[i]=True means the
+        i-th cell should be drawn in red (negative metric or terminal < total
+        invested)."""
         picks = df.nsmallest(5, metric_col) if ascending else df.nlargest(5, metric_col)
-        return [
-            [
+        out = []
+        for idx, row in picks.iterrows():
+            cells = [
                 _format_month(idx),
                 _format_month(row["end_date"]),
                 f"{row[metric_col]:.2%}",
                 f"${row[term_col]:,.0f}",
             ]
-            for idx, row in picks.iterrows()
-        ]
+            red_mask = [
+                False,
+                False,
+                row[metric_col] < 0,
+                row[term_col] < total,
+            ]
+            out.append((cells, red_mask))
+        return out
 
-    final_label = f"${meta.total_invested:,.0f} → "
+    final_label = f"${total:,.0f} → "
 
-    def _draw_table(ax, title: str, rows: list[list[str]]) -> None:
+    def _draw_table(ax, title: str, rows_with_mask) -> None:
         ax.axis("off")
         ax.text(0, 1.0, title, fontsize=11, weight="bold", transform=ax.transAxes)
         headers = ["Start", "End", metric, final_label]
+        cell_text = [row for row, _ in rows_with_mask]
         table = ax.table(
-            cellText=rows, colLabels=headers,
+            cellText=cell_text, colLabels=headers,
             cellLoc="center", colLoc="center",
             loc="upper center",
             bbox=[0.0, 0.05, 1.0, 0.85],
@@ -363,6 +401,11 @@ def add_best_worst_tables(
             cell = table[0, col]
             cell.set_text_props(weight="bold")
             cell.set_facecolor("#eeeeee")
+        # Apply red text to flagged cells (1-indexed because row 0 is the header).
+        for r_idx, (_, red_mask) in enumerate(rows_with_mask, start=1):
+            for c_idx, is_red in enumerate(red_mask):
+                if is_red:
+                    table[r_idx, c_idx].set_text_props(color=NEG_COLOR, weight="bold")
 
     ax = fig.add_axes([0.08, 0.66, 0.4, 0.22])
     _draw_table(ax, "Best nominal",
@@ -381,8 +424,10 @@ def add_best_worst_tables(
                 _make_rows(windows, "real_metric", "real_terminal", True))
 
     fig.text(0.5, 0.28,
-             f"“${meta.total_invested:,.0f} →” is the terminal value of the full "
-             f"contribution schedule, held to the end of the {horizon}-year window. [4]",
+             f"“${total:,.0f} →” is the terminal value of the full contribution "
+             f"schedule, held to the end of the {horizon}-year window. [4] "
+             f"Red marks a negative {metric} or a terminal below the "
+             f"${total:,.0f} break-even.",
              ha="center", fontsize=9, color="#444444")
 
     _add_footer(fig, page_num, total_pages)
@@ -398,23 +443,32 @@ def add_terminal_chart(
     page_num: int,
     total_pages: int,
 ) -> None:
+    total = meta.total_invested
     fig = plt.figure(figsize=PAGE_SIZE)
     fig.text(0.5, 0.93,
-             f"Terminal value of ${meta.total_invested:,.0f} after {horizon} years",
+             f"Terminal value of ${total:,.0f} after {horizon} years — Nominal & Real",
              ha="center", fontsize=14, weight="bold")
     fig.text(0.5, 0.905,
-             f"Where ${meta.total_invested:,.0f} contributed under this schedule "
-             "would have landed, by start month.",
+             f"Where ${total:,.0f} contributed under this schedule would have "
+             "landed, by start month. Red shading marks where the terminal "
+             "fell below break-even.",
              ha="center", fontsize=9, color="#555555")
 
     ax = fig.add_axes([0.12, 0.18, 0.78, 0.66])
-    ax.plot(windows.index, windows["nominal_terminal"], label="Nominal", linewidth=1)
-    ax.plot(windows.index, windows["real_terminal"], label="Real",
-            linewidth=1, color="C1")
-    ax.axhline(meta.total_invested, color="black", linewidth=0.5, linestyle="--",
-                label=f"Break-even (${meta.total_invested:,.0f})")
+    x = windows.index
+    y_nom = windows["nominal_terminal"]
+    y_real = windows["real_terminal"]
+    ax.plot(x, y_nom, label="Nominal", linewidth=1)
+    ax.plot(x, y_real, label="Real", linewidth=1, color="C1")
+    # Red fill between each line and the break-even reference, only below it.
+    ax.fill_between(x, y_nom, total, where=(y_nom < total), color=NEG_COLOR,
+                    alpha=NEG_FILL_ALPHA, interpolate=True, linewidth=0)
+    ax.fill_between(x, y_real, total, where=(y_real < total), color=NEG_COLOR,
+                    alpha=NEG_FILL_ALPHA, interpolate=True, linewidth=0)
+    ax.axhline(total, color="black", linewidth=0.5, linestyle="--",
+                label=f"Break-even (${total:,.0f})")
     ax.set_xlabel("Window start")
-    ax.set_ylabel("Terminal value")
+    ax.set_ylabel("Terminal value ($)")
     ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"${x:,.0f}"))
     ax.legend(loc="upper left")
     ax.grid(True, alpha=0.3)

@@ -339,6 +339,16 @@ scenario's `ScenarioMeta`. Layout conventions:
   matplotlib styling in `report.py`.
 - **Terminal-value scaling**: terminal columns from `compute_windows()` are
   already in dollars (scaled by `total_invested`). Never re-multiply.
+- **Real / nominal labeling**: every chart title, axis label, and table column
+  must name the return type ("Nominal" / "Real" / "Nominal & Real"). The PDF
+  template enforces this in the per-page builders; the site does so via
+  `cagrHeader` / `histHeader` / `terminalHeader` in `docs/app.js` (rebuilt on
+  every render to match the current dropdown).
+- **Red-for-negative convention**: anything reading `< 0` (annualized return)
+  or `< total_invested` (terminal dollar) is drawn in red. Constants:
+  `NEG_COLOR = "#cc3333"` and `NEG_FILL_ALPHA = 0.18` in `report_template.py`;
+  `--negative-color: #cc3333` in `docs/style.css` (plus a `.negative` class for
+  table cells). New chart helpers should honor both conventions.
 
 ## Cross-tool compatibility
 

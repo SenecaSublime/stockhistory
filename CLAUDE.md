@@ -69,6 +69,14 @@ The split is intentional and was reconsidered explicitly (see `design.md` "Why t
 
 Terminal-value columns are in **dollars** (already multiplied by `total_invested`); metric columns are decimal annual rates. The frontend and report template assume this — don't re-introduce per-$1 multipliers.
 
+## Charting conventions (apply to every new chart/table)
+
+- **Label every chart and table as Nominal, Real, or "Nominal & Real."** Never publish a chart that leaves the reader guessing whether they're looking at inflation-adjusted numbers. Site chart titles and axis labels include the return type explicitly; PDF chart titles say "Nominal & Real" when both series are plotted with a legend.
+- **Red flags negative outcomes.** Any value where the metric is `< 0` (negative CAGR/IRR) or a terminal dollar is `< total_invested` (below break-even) is drawn in red. Site uses the `.negative` CSS class (`--negative-color` variable). PDFs use the `NEG_COLOR` / `NEG_FILL_ALPHA` constants in `src/report_template.py`. Concretely:
+  - Line charts: red shading via `fill_between(... where=(y < threshold))` (matplotlib) or a clamped `fill: 'tozeroy'`/`'tonexty'` trace (Plotly).
+  - Histograms: bins with left edge `< 0` get `NEG_COLOR` face color.
+  - Tables: cells holding a negative metric or below-break-even terminal get red bold text.
+
 ## Branding
 
 The site and PDFs are branded as **Fubar Analytics** (fictitious). Brand identity is centralized in two files so a name/color change is two edits:

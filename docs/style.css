@@ -1,5 +1,12 @@
 :root {
   --brand-color: #2c5f7a;
+  --negative-color: #cc3333;
+}
+
+td.negative,
+.negative {
+  color: var(--negative-color);
+  font-weight: 600;
 }
 
 main {
