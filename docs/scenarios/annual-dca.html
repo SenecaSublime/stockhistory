@@ -4,18 +4,45 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="scenario-slug" content="annual_dca">
-  <title>U.S. Stock Returns — $100 Annual DCA</title>
+  <title>Fubar Analytics — $100 Annual DCA</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
   <main class="container">
-    <p><small><a href="../index.html">← All scenarios</a></small></p>
+    <header class="brand-header">
+      <a href="../index.html" class="brand-name">Fubar Analytics</a>
+      <span class="brand-tagline">Long-run market research</span>
+    </header>
+
+    <p>
+      <small>
+        <a href="../index.html">← All scenarios</a>
+        &nbsp;·&nbsp;
+        <a href="../reports/annual_dca.pdf">Download PDF report</a>
+      </small>
+    </p>
 
     <hgroup>
       <h1>$100 annual DCA</h1>
       <p id="scenarioBlurb"></p>
     </hgroup>
+
+    <aside class="comparison-note">
+      <small>
+        <strong>Comparing scenarios:</strong> This page reports
+        <strong>IRR</strong> because the ten $100 deposits have different
+        holding periods (the first compounds for 10 years, the last for 1).
+        The <a href="lump-sum.html">lump-sum</a> page reports
+        <strong>CAGR</strong> because all $1,000 is deployed at once. Both are
+        annualized rates and fair to compare on a per-dollar-of-time basis —
+        but the lump sum keeps roughly 2× the dollar-years of capital
+        invested across the window, so a higher DCA IRR can still leave you
+        with less terminal money than a lower lump-sum CAGR. Compare the
+        terminal-value chart and the summary table alongside the rate, not
+        the rate alone.
+      </small>
+    </aside>
 
     <article>
       <header><strong>Controls</strong></header>
@@ -59,7 +86,9 @@
     <footer>
       <small>
         Sources: Ken French Data Library + FRED CPIAUCNS. See methodology in the
-        downloadable PDF report. <a href="../index.html">All scenarios</a>.
+        <a href="../reports/annual_dca.pdf">downloadable PDF report</a>.
+        <a href="../index.html">All scenarios</a>.
+        <span class="brand-copyright">© 2026 Fubar Analytics. Research only — not investment advice.</span>
       </small>
     </footer>
   </main>

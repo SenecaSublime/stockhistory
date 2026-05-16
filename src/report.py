@@ -1,9 +1,10 @@
 """Generate per-scenario PDF reports from the processed monthly returns parquet.
 
 Run: ``python -m src.report``. Writes one PDF per registered scenario to
-``reports/<slug>.pdf``. Reports use the standard layout from
-``src.report_template``; per-scenario specifics (titles, metric labels,
-methodology blurb) come from each ``ScenarioMeta``.
+``docs/reports/<slug>.pdf`` so each report is served alongside the live site
+and is reachable from the scenario page's download link. Reports use the
+standard layout from ``src.report_template``; per-scenario specifics (titles,
+metric labels, methodology blurb) come from each ``ScenarioMeta``.
 """
 from __future__ import annotations
 
@@ -17,7 +18,7 @@ from .scenarios import SCENARIOS, Scenario
 
 ROOT = Path(__file__).resolve().parents[1]
 PARQUET_PATH = ROOT / "data" / "processed" / "monthly_returns.parquet"
-REPORTS_DIR = ROOT / "reports"
+REPORTS_DIR = ROOT / "docs" / "reports"
 
 # All current scenarios include 10 years in their horizons. If a future scenario
 # doesn't, fall back to that scenario's longest horizon.
@@ -44,9 +45,9 @@ def _build_one(scenario: Scenario, monthly: pd.DataFrame, output_path: Path) -> 
         tpl.add_methodology_page(pdf, scenario.meta, monthly, horizon, 6, TOTAL_PAGES)
 
         pdf.infodict()["Title"] = (
-            f"Rolling-window U.S. stock returns — {scenario.meta.title}"
+            f"Fubar Analytics — Rolling-window U.S. stock returns — {scenario.meta.title}"
         )
-        pdf.infodict()["Author"] = "stockhistory"
+        pdf.infodict()["Author"] = "Fubar Analytics"
         pdf.infodict()["Subject"] = (
             f"{horizon}-year rolling {scenario.meta.metric_name} and distribution "
             "of U.S. total-market returns"

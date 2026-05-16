@@ -4,18 +4,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="scenario-slug" content="lump_sum">
-  <title>U.S. Stock Returns — $1,000 Lump Sum</title>
+  <title>Fubar Analytics — $1,000 Lump Sum</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
   <main class="container">
-    <p><small><a href="../index.html">← All scenarios</a></small></p>
+    <header class="brand-header">
+      <a href="../index.html" class="brand-name">Fubar Analytics</a>
+      <span class="brand-tagline">Long-run market research</span>
+    </header>
+
+    <p>
+      <small>
+        <a href="../index.html">← All scenarios</a>
+        &nbsp;·&nbsp;
+        <a href="../reports/lump_sum.pdf">Download PDF report</a>
+      </small>
+    </p>
 
     <hgroup>
       <h1>$1,000 lump sum</h1>
       <p id="scenarioBlurb"></p>
     </hgroup>
+
+    <aside class="comparison-note">
+      <small>
+        <strong>Comparing scenarios:</strong> This page reports
+        <strong>CAGR</strong> because all $1,000 is deployed at the window
+        start. The <a href="annual-dca.html">annual DCA</a> page reports
+        <strong>IRR</strong> because its $100 deposits have different holding
+        periods. Both are annualized rates and fair to compare on a
+        per-dollar-of-time basis — but the lump sum keeps roughly 2× the
+        dollar-years of capital invested across the window, so a lower
+        lump-sum CAGR can still produce a higher terminal value than a
+        seemingly better DCA IRR. Compare the terminal-value chart and the
+        summary table alongside the rate, not the rate alone.
+      </small>
+    </aside>
 
     <article>
       <header><strong>Controls</strong></header>
@@ -59,7 +85,9 @@
     <footer>
       <small>
         Sources: Ken French Data Library + FRED CPIAUCNS. See methodology in the
-        downloadable PDF report. <a href="../index.html">All scenarios</a>.
+        <a href="../reports/lump_sum.pdf">downloadable PDF report</a>.
+        <a href="../index.html">All scenarios</a>.
+        <span class="brand-copyright">© 2026 Fubar Analytics. Research only — not investment advice.</span>
       </small>
     </footer>
   </main>

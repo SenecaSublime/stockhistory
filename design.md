@@ -28,17 +28,22 @@ what's being built and when.
               └────────┬─────────┘ └────────┬─────────┘ └──────────────────┘
                        ▼                    ▼                 (dev-only)
               ┌──────────────────┐ ┌──────────────────┐
-              │ docs/data/       │ │ reports/         │
+              │ docs/data/       │ │ docs/reports/    │
               │   <slug>.json    │ │   <slug>.pdf     │
               │ (one per         │ │ (one per         │
               │  scenario,       │ │  scenario,       │
-              │  committed)      │ │  gitignored)     │
-              └────────┬─────────┘ └──────────────────┘
-                       ▼
-              ┌──────────────────┐
-              │ docs/index.html  │  landing page → docs/scenarios/<slug>.html
-              │ + shared app.js  │  (one page per scenario)
-              └──────────────────┘
+              │  committed)      │ │  committed —     │
+              │                  │ │  linked for      │
+              │                  │ │  download)       │
+              └────────┬─────────┘ └────────┬─────────┘
+                       │                    │
+                       ▼                    ▼
+              ┌────────────────────────────────────────────┐
+              │ docs/index.html (landing) →                │
+              │ docs/scenarios/<slug>.html (charts + JSON  │
+              │ fetch via shared app.js; download link to  │
+              │ docs/reports/<slug>.pdf)                   │
+              └────────────────────────────────────────────┘
               ◄─── offline (Python) ─────►  ◄── live (JS) ──►
 ```
 
@@ -199,11 +204,12 @@ Why `CPIAUCNS` over `CPIAUCSL` (seasonally adjusted):
      report layout" section below.
    - `report.py` loops over `SCENARIOS`, picks the 10-year horizon (or each
      scenario's longest available horizon if 10 is not declared), and writes
-     `reports/<slug>.pdf` via the template helpers. Each non-cover page
+     `docs/reports/<slug>.pdf` via the template helpers. Each non-cover page
      carries a short footer citing Ken French + FRED.
    - No new dependencies — matplotlib only.
-   - Output dir is gitignored; per-scenario PDFs are regenerable, not
-     committed deliverables. Rebuild with `python -m src.report`.
+   - Output goes to `docs/reports/<slug>.pdf` (committed and served by
+     GitHub Pages) — each scenario page links to its own PDF as a download.
+     Rebuild with `python -m src.report` or `.\scripts\publish.ps1`.
 
 7. **`notebooks/NN_<slug>.ipynb`** — one per scenario
    - Exploratory, developer-only consumers of `monthly_returns.parquet`. Each
@@ -242,7 +248,6 @@ stockhistory/
 ├── data/
 │   ├── raw/                         # downloaded sources (gitignored)
 │   └── processed/                   # cleaned parquet (gitignored)
-├── reports/                         # per-scenario PDFs (gitignored)
 ├── src/
 │   ├── __init__.py
 │   ├── ingest.py                    # raw → parquet
@@ -265,9 +270,15 @@ stockhistory/
 │   │   └── annual-dca.html
 │   ├── app.js                       # shared renderer (reads <meta name="scenario-slug">)
 │   ├── style.css                    # small overrides
-│   └── data/
-│       ├── lump_sum.json            # committed; written by src/export.py
-│       └── annual_dca.json          # committed; written by src/export.py
+│   ├── data/
+│   │   ├── lump_sum.json            # committed; written by src/export.py
+│   │   └── annual_dca.json          # committed; written by src/export.py
+│   └── reports/
+│       ├── lump_sum.pdf             # committed; written by src/report.py; linked for download
+│       └── annual_dca.pdf           # committed; written by src/report.py; linked for download
+├── scripts/
+│   ├── serve.ps1                    # launches http.server on docs/ + opens browser
+│   └── publish.ps1                  # runs export + report; shows docs/ diff for review
 ├── .github/
 │   └── copilot-instructions.md      # pointer file for GitHub Copilot CLI
 ├── .venv/                           # local Python env (gitignored)
@@ -279,9 +290,10 @@ stockhistory/
 ```
 
 `data/processed/` is **not** committed — it's a regenerable local artifact.
-`docs/data/<slug>.json` (one per registered scenario) **is** committed — it's
-the data the live site needs. `reports/<slug>.pdf` is gitignored and
-regenerable.
+`docs/data/<slug>.json` and `docs/reports/<slug>.pdf` (one of each per
+registered scenario) **are** committed — both are what the live site serves.
+The JSON drives the interactive charts; the PDF is linked from the scenario
+page for download. The legacy project-root `reports/` path is gitignored.
 
 ## PDF report layout
 
@@ -354,16 +366,21 @@ repo. Each refresh produces fresh JSONs; git history serves as the changelog.
 The raw downloads in `data/raw/` are gitignored — they're re-fetchable from
 the canonical URLs.
 
-This means: visitors get whatever was last committed. To refresh:
+This means: visitors get whatever was last committed. The canonical refresh
+flow is wrapped by `scripts/publish.ps1`:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
-python -m src.ingest --refresh    # force re-download
-python -m src.export              # writes docs/data/*.json
-git add docs/data/*.json
+.\scripts\publish.ps1 -Refresh    # re-download raw + rebuild JSONs and PDFs
+git add docs/
 git commit -m "data: refresh through <month>"
 git push
 ```
+
+The script runs `src.ingest --refresh` (when `-Refresh` is passed), then
+`src.export`, then `src.report`, and finishes by printing `git status` for
+`docs/` so the diff is easy to review before committing. Omit `-Refresh`
+when you want to rebuild outputs from cached raw data.
 
 Future: a GitHub Action can do this on a monthly cron.
 

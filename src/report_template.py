@@ -38,9 +38,15 @@ MARGIN_LEFT = 0.10
 MARGIN_RIGHT = 0.90
 TITLE_CENTER = (MARGIN_LEFT + MARGIN_RIGHT) / 2
 TITLE_WIDTH = MARGIN_RIGHT - MARGIN_LEFT
+
+# Branding — keep these in one place so every page picks up changes uniformly.
+BRAND_NAME = "Fubar Analytics"
+BRAND_TAGLINE = "Long-run market research"
+BRAND_COLOR = "#2c5f7a"   # matches docs/style.css --brand-color
+
 PAGE_FOOTER = (
-    "Sources: Fama/French Research Data Factors (Ken French Data Library, Tuck) "
-    "and FRED CPIAUCNS. See final page for full methodology."
+    "Fubar Analytics  ·  Sources: Fama/French Research Data Factors (Ken French Data "
+    "Library, Tuck) and FRED CPIAUCNS  ·  Research only — not investment advice."
 )
 
 
@@ -97,18 +103,30 @@ def add_cover(
     metric = meta.metric_name
 
     fig = plt.figure(figsize=PAGE_SIZE)
-    fig.text(0.5, 0.93, "Rolling-window U.S. stock returns",
-             ha="center", fontsize=18, weight="bold")
-    fig.text(0.5, 0.895, meta.title,
-             ha="center", fontsize=14, color="#333333")
-    fig.text(0.5, 0.865,
+    # Brand strip — drawn as a centered bold word above a thin rule in the
+    # brand color, matching docs/style.css .brand-header on the website.
+    fig.text(TITLE_CENTER, 0.965, BRAND_NAME,
+             ha="center", va="top", fontsize=12, weight="bold",
+             color=BRAND_COLOR)
+    fig.text(TITLE_CENTER, 0.94, BRAND_TAGLINE,
+             ha="center", va="top", fontsize=8.5, color="#555555")
+    fig.add_artist(plt.Line2D(
+        [MARGIN_LEFT, MARGIN_RIGHT], [0.92, 0.92],
+        transform=fig.transFigure, color=BRAND_COLOR, linewidth=1.2,
+    ))
+
+    fig.text(TITLE_CENTER, 0.895, "Rolling-window U.S. stock returns",
+             ha="center", va="top", fontsize=17, weight="bold")
+    fig.text(TITLE_CENTER, 0.864, meta.title,
+             ha="center", va="top", fontsize=13, color="#333333")
+    fig.text(TITLE_CENTER, 0.838,
              f"Monthly data, {_format_month(monthly.index.min())} – "
              f"{_format_month(monthly.index.max())} ({len(monthly):,} months)",
-             ha="center", fontsize=10, color="#444444")
-    fig.text(0.5, 0.845, f"Generated {date.today().isoformat()}",
-             ha="center", fontsize=9, color="#777777")
+             ha="center", va="top", fontsize=10, color="#444444")
+    fig.text(TITLE_CENTER, 0.82, f"Generated {date.today().isoformat()}",
+             ha="center", va="top", fontsize=9, color="#777777")
 
-    ax = fig.add_axes([0.13, 0.17, 0.74, 0.65])
+    ax = fig.add_axes([0.13, 0.17, 0.74, 0.62])
     ax.axis("off")
 
     lines = [
@@ -456,7 +474,7 @@ def add_methodology_page(
         ("Reproducibility", [
             "    python -m src.ingest      # rebuild data/processed/monthly_returns.parquet",
             "    python -m src.export      # rebuild docs/data/*.json",
-            "    python -m src.report      # rebuild reports/*.pdf",
+            "    python -m src.report      # rebuild docs/reports/*.pdf",
             f"    Sample window: {_format_month(monthly.index.min())} – "
             f"{_format_month(monthly.index.max())}"
             f"  ({len(monthly):,} monthly observations).",

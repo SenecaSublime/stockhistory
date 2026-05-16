@@ -21,12 +21,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 python -m src.ingest                        # fetch raw → data/processed/monthly_returns.parquet
 python -m src.ingest --refresh              # force re-download (otherwise cached in data/raw/)
 python -m src.export                        # parquet → docs/data/<slug>.json   (one per scenario)
-python -m src.report                        # parquet → reports/<slug>.pdf      (one per scenario, gitignored)
+python -m src.report                        # parquet → docs/reports/<slug>.pdf (one per scenario, committed)
 jupyter notebook notebooks/01_lump_sum.ipynb
 jupyter notebook notebooks/02_annual_dca.ipynb
+.\scripts\serve.ps1                         # serve docs/ on http://localhost:8000 and open the browser
+.\scripts\publish.ps1                       # ingest (if needed) + export + report; shows docs/ diff
+.\scripts\publish.ps1 -Refresh              # also re-download raw sources before exporting
 ```
 
-No test suite, no linter, no build step for the site. Preview the site by opening `docs/index.html` directly (landing page), or any `docs/scenarios/<slug>.html`. The site can also be served from `docs/` with any static file server.
+No test suite, no linter, no build step for the site. **Preview the site via `.\scripts\serve.ps1`** — opening `docs/scenarios/*.html` directly via `file://` triggers a Chrome CORS block on the `fetch()` call in `app.js`. The launcher script runs `python -m http.server` bound to `127.0.0.1` and opens the default browser.
 
 ## Architecture
 
@@ -44,7 +47,7 @@ src/scenarios/lump_sum.py    → Scenario 1: $1,000 lump sum at window start
 src/scenarios/annual_dca.py  → Scenario 2: $100 × 10 yearly anniversaries
 src/export.py                → docs/data/<slug>.json                    (COMMITTED — site reads these)
 src/report_template.py       → shared PDF page builders
-src/report.py                → reports/<slug>.pdf                       (gitignored, regenerable)
+src/report.py                → docs/reports/<slug>.pdf                  (COMMITTED — served by site for download)
 notebooks/NN_<slug>.ipynb    → per-scenario exploration; reads the parquet, no shipped output
 docs/index.html              → landing page with scenario links
 docs/scenarios/<slug>.html   → one page per scenario; <meta name="scenario-slug"> drives app.js
@@ -58,13 +61,22 @@ The split is intentional and was reconsidered explicitly (see `design.md` "Why t
 
 1. Create `src/scenarios/<slug>.py` with a class whose `meta` is a `ScenarioMeta` (slug, title, description, total_invested, metric_name, horizons, methodology_lines) and which implements `compute_windows(monthly, horizon)` returning a DataFrame with columns `end_date`, `nominal_terminal`, `real_terminal`, `nominal_metric`, `real_metric`.
 2. Append an instance to `SCENARIOS` in `src/scenarios/__init__.py`.
-3. Create `docs/scenarios/<slug>.html` (copy an existing one and update the `<meta name="scenario-slug">` + headings).
-4. Link it from `docs/index.html`.
+3. Create `docs/scenarios/<slug>.html` (copy an existing one and update the `<meta name="scenario-slug">` + headings + the two `Download PDF report` links that point at `../reports/<slug>.pdf`).
+4. Link it from `docs/index.html` (include a `Download PDF report` link to `reports/<slug>.pdf`).
 5. Create `notebooks/NN_<slug>.ipynb` for validation/exploration.
-6. Run `python -m src.export` and `python -m src.report`.
+6. Run `.\scripts\publish.ps1` (or `python -m src.export` then `python -m src.report` directly) — both produce `docs/data/<slug>.json` and `docs/reports/<slug>.pdf`.
 7. Update `plan.md`, `design.md`, this file, and `.github/copilot-instructions.md` in the same commit.
 
 Terminal-value columns are in **dollars** (already multiplied by `total_invested`); metric columns are decimal annual rates. The frontend and report template assume this — don't re-introduce per-$1 multipliers.
+
+## Branding
+
+The site and PDFs are branded as **Fubar Analytics** (fictitious). Brand identity is centralized in two files so a name/color change is two edits:
+
+- `src/report_template.py` — `BRAND_NAME`, `BRAND_TAGLINE`, `BRAND_COLOR` constants near the top, plus the `PAGE_FOOTER` string. These drive the PDF cover strip, page footers, and `pdf.infodict()["Author"]` (set in `src/report.py`).
+- `docs/style.css` — `--brand-color` CSS variable plus `.brand-header` / `.brand-copyright` rules. The brand strip itself is hard-coded in each HTML page (3 pages) under `<header class="brand-header">` — keep those in sync if the name changes.
+
+A rebrand pass: update `BRAND_NAME` in `report_template.py`, update `--brand-color` in `style.css`, search-and-replace the brand name across the three HTML files and the footer copyright line, then run `.\scripts\publish.ps1` to regenerate the PDFs.
 
 ## Cross-tool compatibility (Claude Code + Copilot CLI)
 
@@ -88,8 +100,8 @@ Math uses log-returns + rolling sum rather than chained multiplication, both for
 
 ## What's committed vs. regenerated
 
-- **Committed:** `docs/data/<slug>.json` for every registered scenario — this is the data the live site needs. Each pipeline refresh produces fresh JSONs; commit them explicitly.
-- **Gitignored / regenerable:** `data/raw/` (downloaded source files), `data/processed/` (the parquet), and `reports/` (per-scenario PDFs). Anyone can rebuild them with `python -m src.ingest` + `python -m src.export` + `python -m src.report`.
+- **Committed:** `docs/data/<slug>.json` and `docs/reports/<slug>.pdf` for every registered scenario — these are what the live site serves. The scenario pages link to the PDFs as downloads. Each pipeline refresh produces fresh artifacts; commit them explicitly (or use `.\scripts\publish.ps1` to regenerate and review the diff).
+- **Gitignored / regenerable:** `data/raw/` (downloaded source files), `data/processed/` (the parquet). The legacy project-root `reports/` path is also ignored in case anyone has a stale copy from before PDFs moved into `docs/reports/`. Rebuild any of these with `python -m src.ingest` + `.\scripts\publish.ps1`.
 
 ## Site stack
 

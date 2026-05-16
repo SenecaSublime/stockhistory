@@ -1,7 +1,44 @@
+:root {
+  --brand-color: #2c5f7a;
+}
+
 main {
-  padding-top: 2rem;
+  padding-top: 1rem;
   padding-bottom: 4rem;
   max-width: 1100px;
+}
+
+.brand-header {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.85rem 0 0.65rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--brand-color);
+}
+
+.brand-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--brand-color);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+.brand-name:hover {
+  text-decoration: underline;
+}
+
+.brand-tagline {
+  font-size: 0.85rem;
+  color: var(--pico-muted-color);
+}
+
+.brand-copyright {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--pico-muted-color);
 }
 
 article {
@@ -30,4 +67,15 @@ table {
 footer {
   margin-top: 3rem;
   text-align: center;
+}
+
+.comparison-note {
+  margin: 1.5rem 0;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--pico-muted-border-color);
+  background: var(--pico-card-background-color);
+  border-radius: 0.25rem;
+}
+.comparison-note small {
+  margin-top: 0;
 }

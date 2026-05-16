@@ -3,12 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>U.S. Stock Returns — Scenarios</title>
+  <title>Fubar Analytics — U.S. Stock Returns</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="container">
+    <header class="brand-header">
+      <a href="index.html" class="brand-name">Fubar Analytics</a>
+      <span class="brand-tagline">Long-run market research</span>
+    </header>
+
     <hgroup>
       <h1>U.S. Stock Returns</h1>
       <p>
@@ -30,6 +35,7 @@
           <a href="scenarios/lump-sum.html"><strong>$1,000 lump sum</strong></a>
           — Invest $1,000 at the start of each rolling N-year window and hold to
           the end. The classic buy-and-hold view. Metric: annualized CAGR.
+          <br><small><a href="reports/lump_sum.pdf">Download PDF report</a></small>
         </li>
         <li>
           <a href="scenarios/annual-dca.html"><strong>$100 annual DCA</strong></a>
@@ -37,6 +43,7 @@
           years ($1,000 total contributed). Metric: money-weighted IRR.
           Comparing this scenario's IRR to the lump-sum CAGR shows how much the
           <em>timing</em> of deployed capital matters.
+          <br><small><a href="reports/annual_dca.pdf">Download PDF report</a></small>
         </li>
       </ul>
     </article>
@@ -46,6 +53,7 @@
         Methodology and detailed sources are linked from each scenario's PDF
         report. Source code:
         <a href="https://github.com/">repository</a>.
+        <span class="brand-copyright">© 2026 Fubar Analytics. Research only — not investment advice.</span>
       </small>
     </footer>
   </main>

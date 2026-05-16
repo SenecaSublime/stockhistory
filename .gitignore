@@ -13,5 +13,9 @@ Thumbs.db
 data/raw/
 data/processed/
 
-# PDF report output (regenerable from src/report.py)
-reports/
+# Legacy PDF output location — kept ignored in case anyone still has an old
+# reports/ folder from before PDFs moved to docs/reports/. The current build
+# (src/report.py) writes to docs/reports/<slug>.pdf, which IS committed —
+# the leading slash here keeps this rule scoped to the project-root reports/
+# only, not to docs/reports/.
+/reports/

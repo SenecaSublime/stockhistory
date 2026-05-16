@@ -162,36 +162,56 @@ function render() {
     config
   );
 
-  renderStats(rows, metric, terminal, horizon, type, metricName, totalInvested);
+  renderStats(rows, horizon, metricName, totalInvested);
 }
 
-function renderStats(rows, metric, terminal, horizon, type, metricName, totalInvested) {
-  const n = metric.length;
-  const mean = metric.reduce((a, b) => a + b, 0) / n;
-  const sorted = [...metric].sort((a, b) => a - b);
-  const median = sorted[Math.floor(n / 2)];
-  const min = sorted[0];
-  const max = sorted[n - 1];
-  const minIdx = metric.indexOf(min);
-  const maxIdx = metric.indexOf(max);
-  const negCount = metric.filter((c) => c < 0).length;
-  const finalTerm = terminal[terminal.length - 1];
-  const firstTerm = terminal[0];
+function renderStats(rows, horizon, metricName, totalInvested) {
+  // Summary stats always show both nominal and real side-by-side, regardless
+  // of the "Return type" dropdown — the dropdown only affects the charts.
+  const compute = (key) => {
+    const arr = rows.map((r) => r[key]);
+    const n = arr.length;
+    const mean = arr.reduce((a, b) => a + b, 0) / n;
+    const sorted = [...arr].sort((a, b) => a - b);
+    return {
+      n,
+      mean,
+      median: sorted[Math.floor(n / 2)],
+      min: sorted[0],
+      max: sorted[n - 1],
+      minIdx: arr.indexOf(sorted[0]),
+      maxIdx: arr.indexOf(sorted[n - 1]),
+      negCount: arr.filter((c) => c < 0).length,
+    };
+  };
+
+  const nom = compute('nominal_metric');
+  const real = compute('real_metric');
+
+  const firstRow = rows[0];
+  const lastRow = rows[rows.length - 1];
+
+  const bestCell = (s) =>
+    `${fmtPct(s.max)}<br><small>${rows[s.maxIdx].start} → ${rows[s.maxIdx].end}</small>`;
+  const worstCell = (s) =>
+    `${fmtPct(s.min)}<br><small>${rows[s.minIdx].start} → ${rows[s.minIdx].end}</small>`;
+  const negCell = (s) =>
+    `${s.negCount} (${((s.negCount / s.n) * 100).toFixed(1)}%)`;
 
   document.getElementById('stats').innerHTML = `
     <table>
       <thead>
-        <tr><th>${horizon}-year ${type} windows</th><th>Value</th></tr>
+        <tr><th>${horizon}-year windows</th><th>Nominal</th><th>Real</th></tr>
       </thead>
       <tbody>
-        <tr><td>Number of windows</td><td>${n.toLocaleString()}</td></tr>
-        <tr><td>Mean ${metricName}</td><td>${fmtPct(mean)}</td></tr>
-        <tr><td>Median ${metricName}</td><td>${fmtPct(median)}</td></tr>
-        <tr><td>Best window</td><td>${fmtPct(max)} (start ${rows[maxIdx].start} → end ${rows[maxIdx].end})</td></tr>
-        <tr><td>Worst window</td><td>${fmtPct(min)} (start ${rows[minIdx].start} → end ${rows[minIdx].end})</td></tr>
-        <tr><td>Windows with negative ${metricName}</td><td>${negCount} (${((negCount / n) * 100).toFixed(1)}%)</td></tr>
-        <tr><td>${fmtDollar(totalInvested)} contributed at oldest window</td><td>${fmtDollar(firstTerm)}</td></tr>
-        <tr><td>${fmtDollar(totalInvested)} contributed at most recent complete window</td><td>${fmtDollar(finalTerm)}</td></tr>
+        <tr><td>Number of windows</td><td>${nom.n.toLocaleString()}</td><td>${real.n.toLocaleString()}</td></tr>
+        <tr><td>Mean ${metricName}</td><td>${fmtPct(nom.mean)}</td><td>${fmtPct(real.mean)}</td></tr>
+        <tr><td>Median ${metricName}</td><td>${fmtPct(nom.median)}</td><td>${fmtPct(real.median)}</td></tr>
+        <tr><td>Best ${metricName}</td><td>${bestCell(nom)}</td><td>${bestCell(real)}</td></tr>
+        <tr><td>Worst ${metricName}</td><td>${worstCell(nom)}</td><td>${worstCell(real)}</td></tr>
+        <tr><td>Windows with negative ${metricName}</td><td>${negCell(nom)}</td><td>${negCell(real)}</td></tr>
+        <tr><td>${fmtDollar(totalInvested)} at oldest window (${firstRow.start})</td><td>${fmtDollar(firstRow.nominal_terminal)}</td><td>${fmtDollar(firstRow.real_terminal)}</td></tr>
+        <tr><td>${fmtDollar(totalInvested)} at most recent window (${lastRow.start})</td><td>${fmtDollar(lastRow.nominal_terminal)}</td><td>${fmtDollar(lastRow.real_terminal)}</td></tr>
       </tbody>
     </table>
   `;

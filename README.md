@@ -23,10 +23,14 @@ pip install -r requirements.txt
 ## Run the pipeline
 
 ```powershell
-python -m src.ingest    # downloads raw data, writes data/processed/monthly_returns.parquet
-python -m src.export    # writes docs/data/<slug>.json for every registered scenario
-python -m src.report    # writes reports/<slug>.pdf for every registered scenario (gitignored)
+python -m src.ingest         # downloads raw data, writes data/processed/monthly_returns.parquet
+python -m src.export         # writes docs/data/<slug>.json for every registered scenario
+python -m src.report         # writes docs/reports/<slug>.pdf for every registered scenario
+.\scripts\publish.ps1        # convenience wrapper: export + report + show docs/ diff for review
+.\scripts\publish.ps1 -Refresh  # also re-downloads raw sources first
 ```
+
+Both `docs/data/*.json` and `docs/reports/*.pdf` are committed deliverables — they're what the live site serves. Each scenario's HTML page links to its PDF as a download.
 
 ## Notebooks
 
@@ -37,7 +41,12 @@ jupyter notebook notebooks/02_annual_dca.ipynb
 
 ## Local site preview
 
-Open `docs/index.html` directly in a browser to see the landing page, or open any `docs/scenarios/<slug>.html` to see one scenario. Or serve the `docs/` folder with any static file server. No build step.
+```powershell
+.\scripts\serve.ps1            # serves docs/ on http://localhost:8000 and opens the browser
+.\scripts\serve.ps1 -Port 8080 # different port
+```
+
+Use the launcher rather than opening the HTML directly: Chrome blocks the `fetch()` call in `app.js` when pages are loaded from a `file://` origin, so the per-scenario pages won't render their charts without a local HTTP server. The script uses Python's built-in `http.server` (no extra dependencies). No build step.
 
 ## Adding a new scenario
 
@@ -45,9 +54,9 @@ See the "Adding a new scenario" section in [`CLAUDE.md`](CLAUDE.md) for the full
 
 1. Add `src/scenarios/<slug>.py` implementing the `Scenario` protocol from `src/scenarios/base.py`.
 2. Append an instance to `SCENARIOS` in `src/scenarios/__init__.py`.
-3. Add `docs/scenarios/<slug>.html` and link it from `docs/index.html`.
+3. Add `docs/scenarios/<slug>.html` and link it from `docs/index.html` (include a `Download PDF report` link to `../reports/<slug>.pdf`).
 4. Add `notebooks/NN_<slug>.ipynb`.
-5. Run `python -m src.export` and `python -m src.report`.
+5. Run `.\scripts\publish.ps1` to regenerate the JSON and PDF for the new scenario.
 
 ## Project docs
 
@@ -61,8 +70,8 @@ See the "Adding a new scenario" section in [`CLAUDE.md`](CLAUDE.md) for the full
 ```
 src/         Python pipeline (ingest, analysis, scenarios, export, report, report_template)
 notebooks/   Per-scenario Jupyter notebooks for validation and exploration
-docs/        Static site (HTML + JS + CSS + per-scenario JSONs), served by GitHub Pages
+docs/        Static site served by GitHub Pages: HTML + JS + CSS + per-scenario JSONs + PDFs
 data/        Local working data (gitignored; regenerable)
-reports/     Per-scenario PDF outputs (gitignored; regenerable)
+scripts/     Developer helpers — serve.ps1 (local preview), publish.ps1 (refresh artifacts)
 .github/     Cross-tool instruction file for GitHub Copilot CLI
 ```
