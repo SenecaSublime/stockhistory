@@ -304,9 +304,10 @@ scenario's `ScenarioMeta`. Layout conventions:
 - **Page sequence** (`src/report.py` calls these in order):
   1. **Cover** — project title + scenario subtitle; data span and generation
      date; then a summary block with: full-history nominal & real market
-     CAGR, mean rolling metric (nominal & real), count and share of windows
-     with metric ≤ 0, total windows, window labeling, total contributed per
-     window; and a description blurb at the bottom.
+     CAGR; rolling-metric mean, highest, and lowest (each split nominal &
+     real); count and share of windows with metric ≤ 0; total windows;
+     window labeling; total contributed per window; and a description blurb
+     at the bottom.
   2. **Rolling metric chart** — nominal vs. real line chart of the metric
      across all window starts, plus a six-row summary stats table.
   3. **Distribution** — side-by-side nominal and real histograms with a

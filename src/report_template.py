@@ -31,6 +31,13 @@ from .scenarios import ScenarioMeta
 plt.rcParams["text.parse_math"] = False
 
 PAGE_SIZE = (8.5, 11)
+# Horizontal margin band used for titles, footers, and the cover summary axes.
+# Constraining everything to [MARGIN_LEFT, MARGIN_RIGHT] keeps long scenario
+# titles off the page edge.
+MARGIN_LEFT = 0.10
+MARGIN_RIGHT = 0.90
+TITLE_CENTER = (MARGIN_LEFT + MARGIN_RIGHT) / 2
+TITLE_WIDTH = MARGIN_RIGHT - MARGIN_LEFT
 PAGE_FOOTER = (
     "Sources: Fama/French Research Data Factors (Ken French Data Library, Tuck) "
     "and FRED CPIAUCNS. See final page for full methodology."
@@ -49,12 +56,23 @@ def _format_month(ts: pd.Timestamp) -> str:
 
 def _add_footer(fig: plt.Figure, page_num: int, total_pages: int) -> None:
     fig.text(
-        0.5, 0.025, PAGE_FOOTER,
+        TITLE_CENTER, 0.025, PAGE_FOOTER,
         ha="center", va="bottom", fontsize=7, color="#555555",
     )
     fig.text(
-        0.95, 0.025, f"{page_num} / {total_pages}",
+        MARGIN_RIGHT, 0.025, f"{page_num} / {total_pages}",
         ha="right", va="bottom", fontsize=7, color="#555555",
+    )
+
+
+def _add_title(fig: plt.Figure, y: float, text: str, *, fontsize: int,
+               weight: str = "bold") -> None:
+    """Centered title clipped to the [MARGIN_LEFT, MARGIN_RIGHT] band so long
+    scenario titles cannot run to the page edge."""
+    fig.text(
+        TITLE_CENTER, y, text,
+        ha="center", va="top",
+        fontsize=fontsize, weight=weight, wrap=True,
     )
 
 
@@ -69,10 +87,13 @@ def add_cover(
 ) -> None:
     nom_cagr = full_history_cagr(monthly["nominal_return"])
     real_cagr = full_history_cagr(monthly["real_return"])
-    nom_mean = windows["nominal_metric"].mean()
-    real_mean = windows["real_metric"].mean()
-    nom_neg = (windows["nominal_metric"] <= 0)
-    real_neg = (windows["real_metric"] <= 0)
+    nom_m = windows["nominal_metric"]
+    real_m = windows["real_metric"]
+    nom_mean, real_mean = nom_m.mean(), real_m.mean()
+    nom_max, real_max = nom_m.max(), real_m.max()
+    nom_min, real_min = nom_m.min(), real_m.min()
+    nom_neg = (nom_m <= 0)
+    real_neg = (real_m <= 0)
     metric = meta.metric_name
 
     fig = plt.figure(figsize=PAGE_SIZE)
@@ -99,6 +120,14 @@ def add_cover(
         ("  Nominal", f"{nom_mean:.2%}", "[3]"),
         ("  Real", f"{real_mean:.2%}", "[3]"),
         ("", "", ""),
+        (f"Highest {horizon}-year rolling {metric}", None, None),
+        ("  Nominal", f"{nom_max:+.2%}", "[3]"),
+        ("  Real", f"{real_max:+.2%}", "[3]"),
+        ("", "", ""),
+        (f"Lowest {horizon}-year rolling {metric}", None, None),
+        ("  Nominal", f"{nom_min:+.2%}", "[3]"),
+        ("  Real", f"{real_min:+.2%}", "[3]"),
+        ("", "", ""),
         (f"{horizon}-year rolling windows with {metric} ≤ 0", None, None),
         ("  Nominal",
          f"{nom_neg.mean():.2%}  ({nom_neg.sum():,} of {len(windows):,})", "[3]"),
@@ -113,20 +142,20 @@ def add_cover(
     y = 0.97
     for label, value, ref in lines:
         if not label and not value:
-            y -= 0.025
+            y -= 0.018
             continue
         is_header = value is None
         ax.text(0.02, y, label,
-                fontsize=12 if is_header else 10.5,
+                fontsize=11 if is_header else 10,
                 weight="bold" if is_header else "normal",
                 transform=ax.transAxes)
         if value:
-            ax.text(0.92, y, value, fontsize=10.5,
+            ax.text(0.92, y, value, fontsize=10,
                     ha="right", transform=ax.transAxes)
         if ref:
-            ax.text(0.95, y, ref, fontsize=9, color="#666666",
+            ax.text(0.95, y, ref, fontsize=8.5, color="#666666",
                     ha="left", transform=ax.transAxes)
-        y -= 0.05
+        y -= 0.042
 
     wrapped = textwrap.fill(meta.description, width=95)
     fig.text(0.13, 0.13, wrapped,
