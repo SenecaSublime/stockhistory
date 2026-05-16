@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fubar Analytics — About</title>
+  <meta name="description" content="About Fubar Analytics — a personal sandbox for hacking around with long-run financial market data.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="index.html" class="site-brand">
+        <svg viewBox="0 0 28 28" aria-hidden="true">
+          <rect x="3" y="17" width="4" height="7" rx="1" fill="currentColor"/>
+          <rect x="10" y="11" width="4" height="13" rx="1" fill="currentColor"/>
+          <rect x="17" y="5" width="4" height="19" rx="1" fill="currentColor"/>
+          <line x1="2" y1="24.5" x2="26" y2="24.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>Fubar Analytics</span>
+        <span class="brand-tagline-inline">Long-run market research</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html">Scenarios</a>
+        <a href="about.html" aria-current="page">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-intro">
+      <h1>About Fubar Analytics</h1>
+      <p class="intro-lede">
+        A personal sandbox for hacking around with long-run financial market data. Not a
+        product, not a service, not financial advice — just a place to run pencil-on-paper
+        questions through real historical data and publish what comes out.
+      </p>
+    </div>
+
+    <section class="about-section">
+      <h2>What this site is</h2>
+      <p>
+        Every analysis here takes a contribution schedule (a lump sum, a recurring
+        deposit, eventually a withdrawal plan or a factor tilt) and applies it to
+        <em>every</em> rolling N-year window in U.S. equity history since July 1926.
+        Roughly a thousand 10-year windows, each a small history lesson. The point isn't
+        a single backtest with a single answer; it's the <strong>shape</strong> of the
+        outcomes — distributions, dispersion, how often the strategy lost money in real
+        terms, which decades were brutal and which were a gift.
+      </p>
+      <p>
+        The math runs offline in Python; the site is a thin static layer that visualizes
+        the results. Charts are interactive. Every scenario also ships a downloadable
+        PDF report you can save or send to someone.
+      </p>
+    </section>
+
+    <section class="about-section">
+      <h2>Why it exists</h2>
+      <p>
+        Most "what would $X have grown to?" calculators give you one number — the
+        outcome for one starting month, usually whichever one makes the strategy look
+        best. That hides almost everything interesting about long-run returns: how much
+        the starting decade matters, how wide the dispersion is, what the worst case
+        looks like. Rolling windows surface that. The same $1,000 lump sum invested in
+        January 1990 vs. January 2000 vs. October 1929 tells you radically different
+        stories about the market — and looking at all the starting months together is
+        the closest you get to seeing the market <em>distribution</em>, not just one
+        sample of it.
+      </p>
+      <p>
+        Beyond that, the site is just a place to mess around. New scenario ideas come
+        up; the registry pattern makes it easy to add one and ship.
+      </p>
+    </section>
+
+    <section class="about-section">
+      <h2>Data sources</h2>
+      <ul>
+        <li>
+          <a href="https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html">
+            <strong>Ken French Data Library</strong>
+          </a>
+          — value-weighted U.S. total-market returns, July 1926 onward, derived from
+          CRSP. The academic gold standard for U.S. equity research.
+        </li>
+        <li>
+          <a href="https://fred.stlouisfed.org/series/CPIAUCNS">
+            <strong>FRED CPIAUCNS</strong>
+          </a>
+          — monthly U.S. CPI, not seasonally adjusted, for converting nominal returns
+          into real (inflation-adjusted) returns via the Fisher equation. The
+          not-seasonally-adjusted series is used deliberately so the data extends back
+          to 1913 and aligns with Ken French's 1926 start.
+        </li>
+      </ul>
+      <p>
+        Both sources are free, public, and well-documented. The full Python pipeline is
+        in the
+        <a href="https://github.com/SenecaSublime/stockhistory">source repository on
+        GitHub</a> if you want to see exactly how the data gets from those sources to the
+        charts.
+      </p>
+    </section>
+
+    <section class="about-section">
+      <h2>How it works</h2>
+      <p>
+        Two deliberately separated layers:
+      </p>
+      <ul>
+        <li>
+          <strong>Offline (Python).</strong>
+          <code>src/ingest.py</code> downloads source data and writes a tidy monthly
+          returns Parquet file. <code>src/scenarios/</code> declares each scenario as a
+          module. <code>src/export.py</code> runs every scenario over every horizon and
+          emits a JSON file per scenario. <code>src/report.py</code> builds a per-scenario
+          PDF report using a shared template.
+        </li>
+        <li>
+          <strong>Online (browser).</strong>
+          A small static site (no build step, no bundler, no Node modules) loads the
+          JSON for the current scenario and renders interactive Plotly charts.
+          GitHub Pages serves the whole thing directly from the <code>docs/</code> folder.
+        </li>
+      </ul>
+      <p>
+        The split is deliberate: pandas is enormously better than vanilla JS for
+        time-series math, but the JS side stays small, fast, and free to host.
+      </p>
+    </section>
+
+    <section class="about-section">
+      <h2>Important caveats</h2>
+      <div class="about-callout">
+        <p style="margin: 0;">
+          <strong>This site is research output, not financial advice.</strong> Past
+          performance doesn't predict future results. Every scenario fixes specific
+          assumptions — no taxes, no fees, no rebalancing, U.S. market only, monthly
+          granularity — and your real-life experience would differ from any of them in
+          ways that matter. The goal is to make the <em>shape</em> of historical
+          outcomes intuitive, not to back-test a strategy to put money into.
+        </p>
+      </div>
+      <p>
+        If you're trying to decide what to do with actual money, this site is one of
+        many inputs at best — and there are professionals whose job it is to weigh those
+        inputs for your specific situation.
+      </p>
+    </section>
+
+    <section class="about-section">
+      <h2>Colophon</h2>
+      <p>
+        Built with Python (pandas, matplotlib), Plotly.js, and Pico CSS. Hosted on
+        GitHub Pages. The site has no analytics, no cookies, no tracking, no JavaScript
+        beyond what's needed to fetch the JSON and draw the charts.
+        <a href="https://github.com/SenecaSublime/stockhistory">Source on GitHub.</a>
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="footer-col footer-col-wide">
+        <div class="footer-brand-line">
+          <svg viewBox="0 0 28 28" aria-hidden="true">
+            <rect x="3" y="17" width="4" height="7" rx="1" fill="currentColor"/>
+            <rect x="10" y="11" width="4" height="13" rx="1" fill="currentColor"/>
+            <rect x="17" y="5" width="4" height="19" rx="1" fill="currentColor"/>
+            <line x1="2" y1="24.5" x2="26" y2="24.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Fubar Analytics
+        </div>
+        <p>
+          Exploratory long-run market research, presented as rolling-window scenarios
+          across U.S. equity history. A personal sandbox for poking at financial data —
+          not financial advice.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h4>Scenarios</h4>
+        <ul>
+          <li><a href="scenarios/lump-sum.html">$1,000 lump sum</a></li>
+          <li><a href="scenarios/annual-dca.html">$100 annual DCA</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="about.html">About</a></li>
+          <li><a href="https://github.com/SenecaSublime/stockhistory">Source on GitHub</a></li>
+          <li><a href="https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html">Ken French Data</a></li>
+          <li><a href="https://fred.stlouisfed.org/series/CPIAUCNS">FRED CPIAUCNS</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-footer-bottom">
+      <span>© 2026 Fubar Analytics. Research only — not investment advice.</span>
+      <a href="index.html">All scenarios</a>
+    </div>
+  </footer>
+</body>
+</html>

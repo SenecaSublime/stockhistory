@@ -1,32 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="scenario-slug" content="annual_dca">
   <title>Fubar Analytics — $100 Annual DCA</title>
+  <meta name="description" content="$100 invested on each yearly anniversary of every rolling 10-year window in U.S. equity history.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="../index.html" class="site-brand">
+        <svg viewBox="0 0 28 28" aria-hidden="true">
+          <rect x="3" y="17" width="4" height="7" rx="1" fill="currentColor"/>
+          <rect x="10" y="11" width="4" height="13" rx="1" fill="currentColor"/>
+          <rect x="17" y="5" width="4" height="19" rx="1" fill="currentColor"/>
+          <line x1="2" y1="24.5" x2="26" y2="24.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>Fubar Analytics</span>
+        <span class="brand-tagline-inline">Long-run market research</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="../index.html" aria-current="page">Scenarios</a>
+        <a href="../about.html">About</a>
+      </nav>
+    </div>
+  </header>
+
   <main class="container">
-    <header class="brand-header">
-      <a href="../index.html" class="brand-name">Fubar Analytics</a>
-      <span class="brand-tagline">Long-run market research</span>
-    </header>
+    <nav class="breadcrumb-bar" aria-label="Breadcrumb">
+      <a href="../index.html">← All scenarios</a>
+      <a class="pdf-pill" href="../reports/annual_dca.pdf">Download PDF report</a>
+    </nav>
 
-    <p>
-      <small>
-        <a href="../index.html">← All scenarios</a>
-        &nbsp;·&nbsp;
-        <a href="../reports/annual_dca.pdf">Download PDF report</a>
-      </small>
-    </p>
-
-    <hgroup>
+    <div class="page-intro">
       <h1>$100 annual DCA</h1>
-      <p id="scenarioBlurb"></p>
-    </hgroup>
+      <p class="intro-lede" id="scenarioBlurb"></p>
+    </div>
 
     <aside class="comparison-note">
       <small>
@@ -79,19 +91,50 @@
     </article>
 
     <article>
-      <header><strong>Summary</strong></header>
+      <header><strong>Summary (Nominal & Real)</strong></header>
       <div id="stats"></div>
     </article>
-
-    <footer>
-      <small>
-        Sources: Ken French Data Library + FRED CPIAUCNS. See methodology in the
-        <a href="../reports/annual_dca.pdf">downloadable PDF report</a>.
-        <a href="../index.html">All scenarios</a>.
-        <span class="brand-copyright">© 2026 Fubar Analytics. Research only — not investment advice.</span>
-      </small>
-    </footer>
   </main>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="footer-col footer-col-wide">
+        <div class="footer-brand-line">
+          <svg viewBox="0 0 28 28" aria-hidden="true">
+            <rect x="3" y="17" width="4" height="7" rx="1" fill="currentColor"/>
+            <rect x="10" y="11" width="4" height="13" rx="1" fill="currentColor"/>
+            <rect x="17" y="5" width="4" height="19" rx="1" fill="currentColor"/>
+            <line x1="2" y1="24.5" x2="26" y2="24.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Fubar Analytics
+        </div>
+        <p>
+          Sources: Ken French Data Library and FRED CPIAUCNS. Methodology and
+          detailed sources in the <a href="../reports/annual_dca.pdf">downloadable PDF</a>.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h4>Scenarios</h4>
+        <ul>
+          <li><a href="lump-sum.html">$1,000 lump sum</a></li>
+          <li><a href="annual-dca.html">$100 annual DCA</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="https://github.com/SenecaSublime/stockhistory">Source on GitHub</a></li>
+          <li><a href="https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html">Ken French Data</a></li>
+          <li><a href="https://fred.stlouisfed.org/series/CPIAUCNS">FRED CPIAUCNS</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-footer-bottom">
+      <span>© 2026 Fubar Analytics. Research only — not investment advice.</span>
+      <a href="../index.html">All scenarios</a>
+    </div>
+  </footer>
 
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <script src="../app.js"></script>

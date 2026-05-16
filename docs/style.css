@@ -1,48 +1,366 @@
+/* =============================================================================
+   Fubar Analytics — site styles
+   Layered on top of Pico CSS 2 (classless). Pico provides base typography,
+   form elements, and dark/light theming. This file adds the brand identity:
+   site header + nav, hero, scenario card grid, multi-column footer, and the
+   negative-value coloring used by both the site and the PDFs.
+   ============================================================================= */
+
 :root {
   --brand-color: #2c5f7a;
+  --brand-color-light: #4a89a8;
+  --brand-color-dark: #1f4358;
+  --brand-bg-tint: #f5f8fa;
+  --brand-bg-tint-strong: #e8f0f5;
   --negative-color: #cc3333;
+  --site-max-width: 1100px;
+  --header-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --card-shadow-hover: 0 8px 20px rgba(44, 95, 122, 0.14);
 }
 
-td.negative,
-.negative {
-  color: var(--negative-color);
-  font-weight: 600;
+/* Reset Pico's body padding so site-header / site-footer can span full width. */
+body {
+  margin: 0;
 }
 
-main {
-  padding-top: 1rem;
-  padding-bottom: 4rem;
-  max-width: 1100px;
+main.container {
+  padding-top: 2rem;
+  padding-bottom: 3.5rem;
+  max-width: var(--site-max-width);
 }
 
-.brand-header {
+/* -------- Site header (sticky) ------------------------------------------- */
+
+.site-header {
+  background: white;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  box-shadow: var(--header-shadow);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.site-header-inner {
+  max-width: var(--site-max-width);
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem;
   display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  padding: 0.85rem 0 0.65rem;
-  margin-bottom: 1.5rem;
-  border-bottom: 2px solid var(--brand-color);
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
 }
 
-.brand-name {
-  font-size: 1.2rem;
-  font-weight: 700;
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
   color: var(--brand-color);
   text-decoration: none;
+  font-weight: 700;
+  font-size: 1.15rem;
   letter-spacing: -0.01em;
 }
 
-.brand-name:hover {
+.site-brand:hover {
+  color: var(--brand-color-dark);
+}
+
+.site-brand svg {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.site-brand .brand-tagline-inline {
+  color: var(--pico-muted-color);
+  font-weight: 400;
+  font-size: 0.85rem;
+  border-left: 1px solid var(--pico-muted-border-color);
+  padding-left: 0.75rem;
+  margin-left: 0.35rem;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.site-nav a {
+  color: var(--pico-color);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.4rem 0;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current="page"] {
+  color: var(--brand-color);
+  border-bottom-color: var(--brand-color);
+}
+
+/* -------- Hero (landing page only) --------------------------------------- */
+
+.hero {
+  background: linear-gradient(135deg, var(--brand-bg-tint-strong) 0%, var(--brand-bg-tint) 60%, white 100%);
+  padding: 3.5rem 1.25rem 3rem;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+.hero-inner {
+  max-width: var(--site-max-width);
+  margin: 0 auto;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand-color);
+  background: white;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  line-height: 1.15;
+  margin: 0 0 0.75rem;
+  letter-spacing: -0.02em;
+  color: var(--pico-h1-color);
+  max-width: 24ch;
+}
+
+.hero p {
+  font-size: 1.15rem;
+  color: var(--pico-muted-color);
+  max-width: 62ch;
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* -------- Scenario card grid (landing) ----------------------------------- */
+
+.section-heading {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+}
+
+.section-lede {
+  color: var(--pico-muted-color);
+  margin: 0 0 1.75rem;
+  max-width: 62ch;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 0 0 3rem;
+}
+
+.scenario-card {
+  background: white;
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: 0.5rem;
+  padding: 1.5rem 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  box-shadow: var(--card-shadow);
+}
+
+.scenario-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--brand-color);
+  transform: scaleX(0.25);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+
+.scenario-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover);
+  border-color: var(--brand-color-light);
+}
+
+.scenario-card:hover::before {
+  transform: scaleX(1);
+}
+
+.scenario-card .card-eyebrow {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand-color);
+  background: var(--brand-bg-tint);
+  padding: 0.2rem 0.55rem;
+  border-radius: 0.25rem;
+  margin-bottom: 0.75rem;
+  align-self: flex-start;
+}
+
+.scenario-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+}
+
+/* "Stretched link" pattern: the title anchor sits in normal flow visually, but
+   an absolutely-positioned ::after spans the whole card so clicking anywhere
+   on the card (other than the PDF link below) navigates to the scenario. */
+.scenario-card h3 a.card-link {
+  color: var(--pico-h3-color);
+  text-decoration: none;
+}
+
+.scenario-card h3 a.card-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.scenario-card:hover h3 a.card-link {
+  color: var(--brand-color);
+}
+
+.scenario-card p {
+  flex: 1;
+  margin: 0 0 1.25rem;
+  color: var(--pico-color);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.scenario-card .card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--pico-muted-border-color);
+}
+
+.scenario-card .card-cta {
+  color: var(--brand-color);
+  font-weight: 600;
+}
+
+/* PDF link lifted above the stretched-link overlay so it's separately clickable. */
+.scenario-card .card-pdf {
+  position: relative;
+  z-index: 2;
+  color: var(--pico-muted-color);
+  text-decoration: none;
+}
+
+.scenario-card .card-pdf:hover {
+  color: var(--brand-color);
   text-decoration: underline;
 }
 
-.brand-tagline {
-  font-size: 0.85rem;
-  color: var(--pico-muted-color);
+/* -------- Page intro (used on scenario + about pages) -------------------- */
+
+.page-intro {
+  margin: 0 0 2rem;
 }
 
-.brand-copyright {
+.page-intro h1 {
+  font-size: 2rem;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.page-intro .intro-lede {
+  font-size: 1.1rem;
+  color: var(--pico-muted-color);
+  margin: 0;
+  max-width: 62ch;
+}
+
+.breadcrumb-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: -0.5rem 0 1.5rem;
+  font-size: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.breadcrumb-bar a {
+  color: var(--pico-muted-color);
+  text-decoration: none;
+}
+
+.breadcrumb-bar a:hover {
+  color: var(--brand-color);
+  text-decoration: underline;
+}
+
+.breadcrumb-bar .pdf-pill {
+  margin-left: auto;
+  background: var(--brand-color);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.breadcrumb-bar .pdf-pill:hover {
+  background: var(--brand-color-dark);
+  color: white;
+  text-decoration: none;
+}
+
+/* -------- Comparison-note callout ---------------------------------------- */
+
+.comparison-note {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--brand-color);
+  background: var(--brand-bg-tint);
+  border-radius: 0 0.35rem 0.35rem 0;
+  color: var(--pico-color);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.comparison-note small {
+  margin: 0;
+  display: block;
+}
+
+/* -------- Charts & tables ------------------------------------------------ */
+
+.chart {
+  width: 100%;
+  height: clamp(280px, 48vw, 420px);
+}
+
+.chart-short {
+  height: clamp(240px, 38vw, 320px);
+}
+
+small {
   display: block;
   margin-top: 0.5rem;
   color: var(--pico-muted-color);
@@ -52,37 +370,196 @@ article {
   margin-top: 1.5rem;
 }
 
-.chart {
-  width: 100%;
-  height: 420px;
-}
-
-.chart-short {
-  height: 320px;
-}
-
-small {
-  display: block;
-  margin-top: 0.5rem;
-  color: var(--pico-muted-color);
-}
-
 table {
   margin: 0;
 }
 
-footer {
-  margin-top: 3rem;
-  text-align: center;
+td.negative,
+.negative {
+  color: var(--negative-color);
+  font-weight: 600;
 }
 
-.comparison-note {
-  margin: 1.5rem 0;
-  padding: 0.75rem 1rem;
-  border-left: 3px solid var(--pico-muted-border-color);
-  background: var(--pico-card-background-color);
-  border-radius: 0.25rem;
+/* -------- About page section blocks -------------------------------------- */
+
+.about-section {
+  margin: 2.5rem 0;
 }
-.comparison-note small {
-  margin-top: 0;
+
+.about-section h2 {
+  font-size: 1.35rem;
+  margin: 0 0 0.75rem;
+  color: var(--brand-color);
+  letter-spacing: -0.01em;
+}
+
+.about-section p,
+.about-section li {
+  line-height: 1.65;
+}
+
+.about-callout {
+  background: var(--brand-bg-tint);
+  border-left: 3px solid var(--brand-color);
+  padding: 1rem 1.25rem;
+  border-radius: 0 0.35rem 0.35rem 0;
+  margin: 1rem 0;
+}
+
+/* -------- Site footer ---------------------------------------------------- */
+
+.site-footer {
+  background: var(--brand-bg-tint);
+  border-top: 1px solid var(--pico-muted-border-color);
+  margin-top: 4rem;
+  padding: 2.5rem 1.25rem 1.25rem;
+  color: var(--pico-color);
+}
+
+.site-footer-inner {
+  max-width: var(--site-max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 2.5rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+.footer-col h4 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--brand-color);
+  margin: 0 0 0.75rem;
+  font-weight: 700;
+}
+
+.footer-col p {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--pico-color);
+}
+
+.footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-col li {
+  margin-bottom: 0.45rem;
+  font-size: 0.9rem;
+}
+
+.footer-col a {
+  color: var(--pico-color);
+  text-decoration: none;
+}
+
+.footer-col a:hover {
+  color: var(--brand-color);
+  text-decoration: underline;
+}
+
+.footer-brand-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--brand-color);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.footer-brand-line svg {
+  width: 22px;
+  height: 22px;
+}
+
+.site-footer-bottom {
+  max-width: var(--site-max-width);
+  margin: 0 auto;
+  padding-top: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+  color: var(--pico-muted-color);
+}
+
+.site-footer-bottom a {
+  color: var(--pico-muted-color);
+}
+
+.site-footer-bottom a:hover {
+  color: var(--brand-color);
+}
+
+/* -------- Responsive breakpoints ----------------------------------------- */
+
+@media (max-width: 900px) {
+  .site-footer-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .footer-col.footer-col-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .site-brand .brand-tagline-inline {
+    display: none;
+  }
+  .site-header-inner {
+    padding: 0.6rem 1rem;
+  }
+  .site-nav {
+    gap: 1rem;
+  }
+  .site-nav a {
+    font-size: 0.9rem;
+  }
+  .hero {
+    padding: 2.5rem 1.25rem 2.25rem;
+  }
+  .hero h1 {
+    font-size: 1.85rem;
+  }
+  .hero p {
+    font-size: 1rem;
+  }
+  .page-intro h1 {
+    font-size: 1.6rem;
+  }
+  main.container {
+    padding-top: 1.25rem;
+  }
+  .site-footer-inner {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-brand {
+    font-size: 1rem;
+  }
+  .site-brand svg {
+    width: 24px;
+    height: 24px;
+  }
+  .site-nav {
+    gap: 0.85rem;
+  }
+  .site-nav a {
+    font-size: 0.85rem;
+  }
+  .breadcrumb-bar .pdf-pill {
+    width: 100%;
+    text-align: center;
+    margin: 0.5rem 0 0;
+  }
 }
