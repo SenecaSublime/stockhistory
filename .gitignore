@@ -9,6 +9,10 @@ venv/
 .DS_Store
 Thumbs.db
 
+# Per-machine Claude Code permission state — not something other contributors
+# need. Tracked historically; untracked from 2026-05-16 onward.
+.claude/settings.local.json
+
 # Local-only working artifacts (regenerable from src/ingest.py)
 data/raw/
 data/processed/
