@@ -270,6 +270,7 @@ stockhistory/
 │   │   └── annual-dca.html
 │   ├── app.js                       # shared renderer (reads <meta name="scenario-slug">)
 │   ├── style.css                    # small overrides
+│   ├── about.html                   # static about page
 │   ├── data/
 │   │   ├── lump_sum.json            # committed; written by src/export.py
 │   │   └── annual_dca.json          # committed; written by src/export.py
@@ -361,13 +362,25 @@ top-level rules change, update both files in the same commit.
 
 ## Site stack
 
-- **Pico.css 2** (via jsDelivr CDN). Classless / semantic-HTML-friendly,
-  ~10 KB. The site is mostly `<main>`, `<article>`, `<table>` with no class soup.
+- **Pico.css 2** (via jsDelivr CDN) provides base typography, form elements,
+  and light/dark theming. Pages set `data-theme="light"` for visual
+  consistency across the brand.
+- **`docs/style.css`** layers the Fubar Analytics brand on top of Pico: CSS
+  variables for the palette (`--brand-color`, `--brand-bg-tint`,
+  `--negative-color`), a sticky site header with inline SVG mark + primary
+  nav, a hero band on the landing page, a scenario card grid using
+  `repeat(auto-fit, minmax(280px, 1fr))`, breadcrumb + "Download PDF" pill
+  bar on scenario pages, a three-column site footer, and the
+  negative-coloring rules shared with the PDF reports.
 - **Plotly.js 2** (via Plotly CDN). Larger (~3 MB) but interactive
-  out-of-the-box (zoom, hover, range selection). For exploratory charts with
-  three views, it pays for itself in lines of code saved versus Chart.js or D3.
+  out-of-the-box. Chart containers use `height: clamp(280px, 48vw, 420px)`
+  so charts shrink reasonably on small viewports.
+- **Responsive breakpoints:** 900px (footer drops to two columns), 720px
+  (header tagline hides, hero shrinks, footer drops to one column), 480px
+  (brand-mark and nav further compact, PDF pill goes full-width on scenario
+  breadcrumbs).
 - **No build step.** No bundler, no transpilation, no node_modules. The site
-  is three files plus a JSON.
+  is HTML + CSS + a single `app.js` + the per-scenario JSONs and PDFs.
 
 ## Versioning the data
 

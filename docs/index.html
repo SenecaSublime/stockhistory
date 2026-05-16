@@ -1,61 +1,129 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fubar Analytics — U.S. Stock Returns</title>
+  <meta name="description" content="Exploratory long-run market research. Rolling-window scenarios over U.S. equity history.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="container">
-    <header class="brand-header">
-      <a href="index.html" class="brand-name">Fubar Analytics</a>
-      <span class="brand-tagline">Long-run market research</span>
-    </header>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="index.html" class="site-brand">
+        <svg viewBox="0 0 28 28" aria-hidden="true">
+          <rect x="3" y="17" width="4" height="7" rx="1" fill="currentColor"/>
+          <rect x="10" y="11" width="4" height="13" rx="1" fill="currentColor"/>
+          <rect x="17" y="5" width="4" height="19" rx="1" fill="currentColor"/>
+          <line x1="2" y1="24.5" x2="26" y2="24.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>Fubar Analytics</span>
+        <span class="brand-tagline-inline">Long-run market research</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html" aria-current="page">Scenarios</a>
+        <a href="about.html">About</a>
+      </nav>
+    </div>
+  </header>
 
-    <hgroup>
-      <h1>U.S. Stock Returns</h1>
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="hero-eyebrow">Exploratory research</span>
+      <h1>U.S. stock returns across every starting month since 1926.</h1>
       <p>
-        Rolling-window analysis of U.S. total-market returns since 1926. Each
-        scenario applies a different contribution schedule to the same monthly
-        returns and reports terminal values and annualized returns across every
-        rolling window. Data sources:
-        <a href="https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html">Ken French Data Library</a>
-        (value-weighted total market) and
-        <a href="https://fred.stlouisfed.org/series/CPIAUCNS">FRED CPIAUCNS</a>
-        (inflation).
+        Pick a contribution schedule. See how it would have played out over every rolling
+        N-year window in U.S. equity history — terminal values, distributions, best and
+        worst decades, all in nominal and real terms. Each scenario ships an interactive
+        page and a downloadable PDF report.
       </p>
-    </hgroup>
+    </div>
+  </section>
 
-    <article>
-      <header><strong>Scenarios</strong></header>
-      <ul>
-        <li>
-          <a href="scenarios/lump-sum.html"><strong>$1,000 lump sum</strong></a>
-          — Invest $1,000 at the start of each rolling N-year window and hold to
-          the end. The classic buy-and-hold view. Metric: annualized CAGR.
-          <br><small><a href="reports/lump_sum.pdf">Download PDF report</a></small>
-        </li>
-        <li>
-          <a href="scenarios/annual-dca.html"><strong>$100 annual DCA</strong></a>
-          — Invest $100 on each yearly anniversary of the window start for ten
-          years ($1,000 total contributed). Metric: money-weighted IRR.
-          Comparing this scenario's IRR to the lump-sum CAGR shows how much the
-          <em>timing</em> of deployed capital matters.
-          <br><small><a href="reports/annual_dca.pdf">Download PDF report</a></small>
-        </li>
-      </ul>
-    </article>
+  <main class="container">
+    <h2 class="section-heading">Scenarios</h2>
+    <p class="section-lede">
+      Each scenario applies a different contribution schedule to the same monthly returns
+      from the Ken French Data Library and FRED CPI. The same math, different ways of
+      deploying capital — useful for seeing what timing actually buys (or costs) you.
+    </p>
 
-    <footer>
-      <small>
-        Methodology and detailed sources are linked from each scenario's PDF
-        report. Source code:
-        <a href="https://github.com/">repository</a>.
-        <span class="brand-copyright">© 2026 Fubar Analytics. Research only — not investment advice.</span>
-      </small>
-    </footer>
+    <div class="scenario-grid">
+      <div class="scenario-card">
+        <span class="card-eyebrow">Buy &amp; hold</span>
+        <h3><a class="card-link" href="scenarios/lump-sum.html">$1,000 lump sum</a></h3>
+        <p>
+          Invest $1,000 at the start of each rolling N-year window and hold to the end.
+          The classic buy-and-hold benchmark. Reports annualized CAGR across every
+          starting month since 1926, in horizons of 5, 10, 15, and 20 years.
+        </p>
+        <div class="card-actions">
+          <span class="card-cta" aria-hidden="true">View analysis →</span>
+          <a class="card-pdf" href="reports/lump_sum.pdf">PDF report</a>
+        </div>
+      </div>
+
+      <div class="scenario-card">
+        <span class="card-eyebrow">Dollar-cost averaging</span>
+        <h3><a class="card-link" href="scenarios/annual-dca.html">$100 annual DCA</a></h3>
+        <p>
+          Invest $100 on each yearly anniversary of the window start — ten deposits over
+          ten years, $1,000 total. Reports money-weighted IRR. Comparing this against the
+          lump-sum CAGR shows how much the <em>timing</em> of deployed capital matters.
+        </p>
+        <div class="card-actions">
+          <span class="card-cta" aria-hidden="true">View analysis →</span>
+          <a class="card-pdf" href="reports/annual_dca.pdf">PDF report</a>
+        </div>
+      </div>
+    </div>
+
+    <p style="color: var(--pico-muted-color); font-size: 0.9rem; margin: 0;">
+      More scenarios in the works — withdrawal-rate analysis, factor tilts, bond/equity
+      mixes. See <a href="about.html">About</a> for what this site is and isn't.
+    </p>
   </main>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="footer-col footer-col-wide">
+        <div class="footer-brand-line">
+          <svg viewBox="0 0 28 28" aria-hidden="true">
+            <rect x="3" y="17" width="4" height="7" rx="1" fill="currentColor"/>
+            <rect x="10" y="11" width="4" height="13" rx="1" fill="currentColor"/>
+            <rect x="17" y="5" width="4" height="19" rx="1" fill="currentColor"/>
+            <line x1="2" y1="24.5" x2="26" y2="24.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Fubar Analytics
+        </div>
+        <p>
+          Exploratory long-run market research, presented as rolling-window scenarios
+          across U.S. equity history. A personal sandbox for poking at financial data —
+          not financial advice.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h4>Scenarios</h4>
+        <ul>
+          <li><a href="scenarios/lump-sum.html">$1,000 lump sum</a></li>
+          <li><a href="scenarios/annual-dca.html">$100 annual DCA</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="about.html">About</a></li>
+          <li><a href="https://github.com/SenecaSublime/stockhistory">Source on GitHub</a></li>
+          <li><a href="https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html">Ken French Data</a></li>
+          <li><a href="https://fred.stlouisfed.org/series/CPIAUCNS">FRED CPIAUCNS</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-footer-bottom">
+      <span>© 2026 Fubar Analytics. Research only — not investment advice.</span>
+      <a href="about.html">About this site</a>
+    </div>
+  </footer>
 </body>
 </html>
