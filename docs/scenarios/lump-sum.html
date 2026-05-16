@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="scenario-slug" content="lump_sum">
+  <title>U.S. Stock Returns — $1,000 Lump Sum</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <main class="container">
+    <p><small><a href="../index.html">← All scenarios</a></small></p>
+
+    <hgroup>
+      <h1>$1,000 lump sum</h1>
+      <p id="scenarioBlurb"></p>
+    </hgroup>
+
+    <article>
+      <header><strong>Controls</strong></header>
+      <div class="grid">
+        <label>
+          Window length (years)
+          <select id="horizon"></select>
+        </label>
+        <label>
+          Return type
+          <select id="returnType">
+            <option value="nominal" selected>Nominal</option>
+            <option value="real">Real (inflation-adjusted)</option>
+          </select>
+        </label>
+      </div>
+    </article>
+
+    <article>
+      <header><strong id="cagrHeader">Annualized return across rolling windows</strong></header>
+      <div id="cagrChart" class="chart"></div>
+      <small>Each point is the annualized return of a window <em>starting</em> at that date.</small>
+    </article>
+
+    <article>
+      <header><strong id="histHeader">Distribution of rolling returns</strong></header>
+      <div id="histChart" class="chart chart-short"></div>
+    </article>
+
+    <article>
+      <header><strong id="terminalHeader">Terminal value</strong></header>
+      <div id="terminalChart" class="chart"></div>
+      <small id="terminalCaption">Value at the end of the window.</small>
+    </article>
+
+    <article>
+      <header><strong>Summary</strong></header>
+      <div id="stats"></div>
+    </article>
+
+    <footer>
+      <small>
+        Sources: Ken French Data Library + FRED CPIAUCNS. See methodology in the
+        downloadable PDF report. <a href="../index.html">All scenarios</a>.
+      </small>
+    </footer>
+  </main>
+
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script src="../app.js"></script>
+</body>
+</html>

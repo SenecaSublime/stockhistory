@@ -4,36 +4,50 @@ A living document tracking what this project is, where it stands, and what's nex
 
 ## Goal
 
-Analyze long-run U.S. stock returns using free, publicly available data, starting
-with **rolling N-year windows** — for every month in history, "if I invested
-$1,000 starting here and held for N years, what's the terminal value and CAGR?"
+Analyze long-run U.S. stock returns using free, publicly available data via
+**rolling N-year windows** under multiple contribution schedules ("scenarios").
+Each scenario asks the same family of questions — "for every month in history,
+if I followed this schedule for N years, what's the terminal value and what's
+the annualized return?" — and produces its own interactive page, JSON file,
+PDF report, and validation notebook.
 
-The first deliverable is a simple interactive website hosted free on GitHub Pages
-that lets a visitor scrub the window length and toggle between nominal and
-inflation-adjusted (real) returns.
+Scenarios currently registered:
+- **`lump_sum`** — invest $1,000 at the start of each rolling window. Metric:
+  annualized CAGR. Horizons: 5/10/15/20 years.
+- **`annual_dca`** — invest $100 on each yearly anniversary of the window
+  start (10 deposits, $1,000 total). Metric: money-weighted IRR. Horizon: 10
+  years.
+
+The deliverable is a simple interactive website hosted free on GitHub Pages
+that lets a visitor pick a scenario, scrub the window length, and toggle
+between nominal and inflation-adjusted (real) returns.
 
 ## Status
 
 **Phase 1 — Data pipeline + rolling-window analysis + initial site:** ✅ Complete.
 
-End-to-end pipeline runs cleanly. All sanity checks pass:
+**Phase 2 — Multi-scenario architecture + Scenario 2 (Annual DCA):** ✅ Complete (2026-05-16).
+
+End-to-end pipeline runs cleanly across both scenarios. All sanity checks pass:
 
 | Check | Expected | Actual |
 |---|---|---|
-| Full-history nominal CAGR | ~9.5–10.5% | 10.20% |
-| Full-history real CAGR | ~6.5–7.5% | 6.99% |
-| 1929–1938 (Depression) 10-yr nominal CAGR | low/negative | −2.10% |
-| 1990–1999 (bull) 10-yr nominal CAGR | ~17–18% | 17.99% |
-| 2000–2009 (lost decade) 10-yr nominal CAGR | near zero | −0.38% |
+| Full-history nominal CAGR (market) | ~9.5–10.5% | 10.20% |
+| Full-history real CAGR (market) | ~6.5–7.5% | 6.99% |
+| 1929–1938 (Depression) 10-yr lump-sum nominal CAGR | low/negative | −2.10% |
+| 1990–1999 (bull) 10-yr lump-sum nominal CAGR | ~17–18% | 17.99% |
+| 2000–2009 (lost decade) 10-yr lump-sum nominal CAGR | near zero | −0.38% |
 | Oct 1987 monthly return | ~−21.5% | −22.59% |
 | Mar 2020 monthly return | ~−13% | −13.25% |
+| 2000–2009 10-yr annual-DCA nominal terminal | > $1,000 (textbook DCA win) | _see notebook_ |
 
-Data spans **August 1926 → March 2026**, 1,195 monthly observations, 1,076 rolling
-10-year windows (5/15/20-year horizons also exported).
+Data spans **August 1926 → March 2026**, 1,195 monthly observations. Lump-sum
+exports cover 5/10/15/20-year horizons; annual DCA covers 10 years.
 
-A standalone PDF report (`python -m src.report` → `reports/rolling_returns.pdf`)
-summarizes the same headline stats, charts, and best/worst tables, with a
-sources-and-methodology footnote page. Output is gitignored / regenerable.
+Per-scenario PDF reports (`python -m src.report` → `reports/<slug>.pdf`)
+share a six-page template (cover, rolling-metric chart, distribution,
+best/worst tables, terminal-value chart, sources + methodology). Output is
+gitignored / regenerable.
 
 ## Backlog
 
@@ -81,6 +95,7 @@ sources-and-methodology footnote page. Output is gitignored / regenerable.
 
 ## Recent decisions
 
+- **2026-05-16:** Introduced multi-scenario architecture and added Scenario 2 (annual DCA). New `src/scenarios/` package with a registry (`SCENARIOS`), a `Scenario` protocol in `base.py` (plus a bisection IRR helper, no scipy dependency), and two scenario modules: `lump_sum.py` (refactor of the existing analysis) and `annual_dca.py` ($100 × 10 yearly anniversaries, terminal at month 120, money-weighted IRR). Refactored `src/export.py` and `src/report.py` to loop over the registry, writing one JSON and one PDF per scenario. Extracted page builders into `src/report_template.py`. Renamed `docs/data/returns.json` → `docs/data/lump_sum.json` and added `docs/data/annual_dca.json`. Restructured the site: `docs/index.html` is now a landing page and each scenario lives at `docs/scenarios/<slug>.html`, with `docs/app.js` reading the slug from a `<meta>` tag. Notebook 01 was renamed to `01_lump_sum.ipynb`; added `02_annual_dca.ipynb`. Added `.github/copilot-instructions.md` as a pointer file for GitHub Copilot CLI, and a "Cross-tool compatibility" section to `CLAUDE.md`. Rationale: extending the project to multiple scenarios was approaching, and introducing the registry on the second scenario is cheaper than on the third.
 - **2026-05-15:** Added `src/report.py`, a standalone PDF report generator that
   reads `data/processed/monthly_returns.parquet` and writes
   `reports/rolling_returns.pdf` via matplotlib's `PdfPages` (no new dependencies).

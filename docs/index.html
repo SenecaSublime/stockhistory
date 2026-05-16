@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>U.S. Stock Returns — Rolling Windows</title>
+  <title>U.S. Stock Returns — Scenarios</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -12,8 +12,10 @@
     <hgroup>
       <h1>U.S. Stock Returns</h1>
       <p>
-        Rolling-window analysis of U.S. total-market returns since 1926.
-        Data sources:
+        Rolling-window analysis of U.S. total-market returns since 1926. Each
+        scenario applies a different contribution schedule to the same monthly
+        returns and reports terminal values and annualized returns across every
+        rolling window. Data sources:
         <a href="https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html">Ken French Data Library</a>
         (value-weighted total market) and
         <a href="https://fred.stlouisfed.org/series/CPIAUCNS">FRED CPIAUCNS</a>
@@ -22,59 +24,30 @@
     </hgroup>
 
     <article>
-      <header><strong>Controls</strong></header>
-      <div class="grid">
-        <label>
-          Window length (years)
-          <select id="horizon">
-            <option value="5">5</option>
-            <option value="10" selected>10</option>
-            <option value="15">15</option>
-            <option value="20">20</option>
-          </select>
-        </label>
-        <label>
-          Return type
-          <select id="returnType">
-            <option value="nominal" selected>Nominal</option>
-            <option value="real">Real (inflation-adjusted)</option>
-          </select>
-        </label>
-      </div>
-    </article>
-
-    <article>
-      <header><strong>Annualized return (CAGR) across rolling windows</strong></header>
-      <div id="cagrChart" class="chart"></div>
-      <small>Each point is the annualized return of a window <em>starting</em> at that date.</small>
-    </article>
-
-    <article>
-      <header><strong>Distribution of rolling CAGRs</strong></header>
-      <div id="histChart" class="chart chart-short"></div>
-    </article>
-
-    <article>
-      <header><strong>Terminal value of $1,000</strong></header>
-      <div id="terminalChart" class="chart"></div>
-      <small>Value at the end of the window, for $1,000 invested at the start.</small>
-    </article>
-
-    <article>
-      <header><strong>Summary</strong></header>
-      <div id="stats"></div>
+      <header><strong>Scenarios</strong></header>
+      <ul>
+        <li>
+          <a href="scenarios/lump-sum.html"><strong>$1,000 lump sum</strong></a>
+          — Invest $1,000 at the start of each rolling N-year window and hold to
+          the end. The classic buy-and-hold view. Metric: annualized CAGR.
+        </li>
+        <li>
+          <a href="scenarios/annual-dca.html"><strong>$100 annual DCA</strong></a>
+          — Invest $100 on each yearly anniversary of the window start for ten
+          years ($1,000 total contributed). Metric: money-weighted IRR.
+          Comparing this scenario's IRR to the lump-sum CAGR shows how much the
+          <em>timing</em> of deployed capital matters.
+        </li>
+      </ul>
     </article>
 
     <footer>
       <small>
-        Methodology: monthly returns compounded over rolling N-year windows;
-        CAGR = (terminal/1)<sup>1/N</sup> − 1. Real returns deflate by month-over-month CPI.
-        Source code: <a href="https://github.com/">repository</a>.
+        Methodology and detailed sources are linked from each scenario's PDF
+        report. Source code:
+        <a href="https://github.com/">repository</a>.
       </small>
     </footer>
   </main>
-
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-  <script src="app.js"></script>
 </body>
 </html>
