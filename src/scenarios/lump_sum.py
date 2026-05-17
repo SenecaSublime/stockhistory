@@ -35,6 +35,11 @@ class LumpSum1k:
         ),
     )
 
+    def total_invested(self, horizon: int) -> float:
+        """Lump-sum is $1,000 regardless of horizon (the same $1,000 just compounds
+        for longer)."""
+        return self.meta.total_invested
+
     def compute_windows(self, monthly: pd.DataFrame, horizon: int) -> pd.DataFrame:
         nom = rolling_window_returns(monthly["nominal_return"], years=horizon)
         real = rolling_window_returns(monthly["real_return"], years=horizon)

@@ -20,6 +20,7 @@ JSON_DIR = ROOT / "docs" / "data"
 
 def _build_one(scenario: Scenario, monthly: pd.DataFrame) -> dict:
     rolling: dict[str, list[dict]] = {}
+    total_invested_per_horizon: dict[str, float] = {}
     for years in scenario.meta.horizons:
         df = scenario.compute_windows(monthly, years).dropna()
         rolling[str(years)] = [
@@ -33,6 +34,7 @@ def _build_one(scenario: Scenario, monthly: pd.DataFrame) -> dict:
             }
             for idx, row in df.iterrows()
         ]
+        total_invested_per_horizon[str(years)] = scenario.total_invested(years)
 
     monthly_rows = [
         {
@@ -49,12 +51,17 @@ def _build_one(scenario: Scenario, monthly: pd.DataFrame) -> dict:
             "title": scenario.meta.title,
             "short_title": scenario.meta.short_title,
             "description": scenario.meta.description,
+            # Scenario-level reference total (used as a fallback). Per-horizon
+            # values live in the "total_invested" map below and override this.
             "total_invested": scenario.meta.total_invested,
             "metric_name": scenario.meta.metric_name,
             "horizons": list(scenario.meta.horizons),
         },
         "monthly": monthly_rows,
         "rolling": rolling,
+        # Per-horizon total contributions. Lump-sum is constant (always $1,000);
+        # annual DCA scales with horizon ($100 × N).
+        "total_invested": total_invested_per_horizon,
     }
 
 

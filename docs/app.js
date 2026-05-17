@@ -70,7 +70,10 @@ function render() {
   const metricKey = `${type}_metric`;
   const termKey = `${type}_terminal`;
   const metricName = scenario.metric_name;
-  const totalInvested = scenario.total_invested;
+  // Per-horizon total contributed (DCA scales with N; lump-sum is constant).
+  // Fall back to the scenario-level value for older JSONs without the map.
+  const totalInvested =
+    (DATA.total_invested && DATA.total_invested[horizon]) ?? scenario.total_invested;
 
   const x = rows.map((r) => r.start);
   const metric = rows.map((r) => r[metricKey]);
